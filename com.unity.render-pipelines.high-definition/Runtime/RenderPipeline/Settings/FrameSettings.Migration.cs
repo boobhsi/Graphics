@@ -167,7 +167,6 @@ namespace UnityEngine.Rendering.HighDefinition
             newFrameSettingsFormat.SetEnabled(FrameSettingsField.Transmission, oldFrameSettingsFormat.enableTransmission);
             newFrameSettingsFormat.SetEnabled(FrameSettingsField.AtmosphericScattering, oldFrameSettingsFormat.enableAtmosphericScattering);
             newFrameSettingsFormat.SetEnabled(FrameSettingsField.Volumetrics, oldFrameSettingsFormat.enableVolumetrics);
-            newFrameSettingsFormat.SetEnabled(FrameSettingsField.ReprojectionForVolumetrics, oldFrameSettingsFormat.enableReprojectionForVolumetrics);
             newFrameSettingsFormat.SetEnabled(FrameSettingsField.LightLayers, oldFrameSettingsFormat.enableLightLayers);
             newFrameSettingsFormat.SetEnabled(FrameSettingsField.DepthPrepassWithDeferredRendering, oldFrameSettingsFormat.enableDepthPrepassWithDeferredRendering);
             newFrameSettingsFormat.SetEnabled(FrameSettingsField.TransparentPrepass, oldFrameSettingsFormat.enableTransparentPrepass);
@@ -234,9 +233,6 @@ namespace UnityEngine.Rendering.HighDefinition
                             break;
                         case ObsoleteFrameSettingsOverrides.Volumetrics:
                             newFrameSettingsOverrideMask.mask[(int)FrameSettingsField.Volumetrics] = true;
-                            break;
-                        case ObsoleteFrameSettingsOverrides.ReprojectionForVolumetrics:
-                            newFrameSettingsOverrideMask.mask[(int)FrameSettingsField.ReprojectionForVolumetrics] = true;
                             break;
                         case ObsoleteFrameSettingsOverrides.LightLayers:
                             newFrameSettingsOverrideMask.mask[(int)FrameSettingsField.LightLayers] = true;

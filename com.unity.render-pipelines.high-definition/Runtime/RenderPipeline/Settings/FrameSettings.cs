@@ -279,9 +279,6 @@ namespace UnityEngine.Rendering.HighDefinition
         /// <summary>When enabled, Cameras using these Frame Settings render volumetric effects such as volumetric fog and lighting.</summary>
         [FrameSettingsField(1, autoName: Volumetrics, positiveDependencies: new[] { AtmosphericScattering }, tooltip: "When enabled, Cameras using these Frame Settings render volumetric effects such as volumetric fog and lighting (Depends on \"Volumetrics\" in current HDRP Asset).")]
         Volumetrics = 28,
-        /// <summary>When enabled, Cameras using these Frame Settings use several previous frames to calculate volumetric effects which increases their overall quality at run time.</summary>
-        [FrameSettingsField(1, displayedName: "Reprojection", positiveDependencies: new[] { AtmosphericScattering, Volumetrics }, tooltip: "When enabled, Cameras using these Frame Settings use several previous frames to calculate volumetric effects which increases their overall quality at run time.")]
-        ReprojectionForVolumetrics = 29,
         /// <summary>When enabled, Cameras that use these Frame Settings make use of LightLayers.</summary>
         [FrameSettingsField(1, autoName: LightLayers, tooltip: "When enabled, Cameras that use these Frame Settings make use of LightLayers (Depends on \"Light Layers\" in current HDRP Asset).")]
         LightLayers = 30,
@@ -383,7 +380,6 @@ namespace UnityEngine.Rendering.HighDefinition
                 (uint)FrameSettingsField.Transmission,   // Caution: this is only for debug, it doesn't save the cost of Transmission execution
                 (uint)FrameSettingsField.AtmosphericScattering,
                 (uint)FrameSettingsField.Volumetrics,
-                (uint)FrameSettingsField.ReprojectionForVolumetrics,
                 (uint)FrameSettingsField.LightLayers,
                 (uint)FrameSettingsField.ExposureControl,
                 (uint)FrameSettingsField.LitShaderMode, //deffered ; enum with only two value saved as a bool
@@ -457,7 +453,6 @@ namespace UnityEngine.Rendering.HighDefinition
                 (uint)FrameSettingsField.Transmission,   // Caution: this is only for debug, it doesn't save the cost of Transmission execution
                 //(uint)FrameSettingsField.AtmosphericScaterring,
                 (uint)FrameSettingsField.Volumetrics,
-                (uint)FrameSettingsField.ReprojectionForVolumetrics,
                 (uint)FrameSettingsField.LightLayers,
                 //(uint)FrameSettingsField.ExposureControl,
                 (uint)FrameSettingsField.LitShaderMode, //deffered ; enum with only two value saved as a bool
@@ -512,7 +507,6 @@ namespace UnityEngine.Rendering.HighDefinition
                 (uint)FrameSettingsField.Transmission,   // Caution: this is only for debug, it doesn't save the cost of Transmission execution
                 (uint)FrameSettingsField.AtmosphericScattering,
                 (uint)FrameSettingsField.Volumetrics,
-                (uint)FrameSettingsField.ReprojectionForVolumetrics,
                 (uint)FrameSettingsField.LightLayers,
                 //(uint)FrameSettingsField.ExposureControl,
                 (uint)FrameSettingsField.LitShaderMode, //deffered ; enum with only two value saved as a bool
@@ -759,7 +753,6 @@ namespace UnityEngine.Rendering.HighDefinition
 
             // Volumetric are disabled if there is no atmospheric scattering
             sanitizedFrameSettings.bitDatas[(int)FrameSettingsField.Volumetrics] &= renderPipelineSettings.supportVolumetrics && atmosphericScattering; //&& !preview induced by atmospheric scattering
-            sanitizedFrameSettings.bitDatas[(int)FrameSettingsField.ReprojectionForVolumetrics] &= !preview;
 
             sanitizedFrameSettings.bitDatas[(int)FrameSettingsField.LightLayers] &= renderPipelineSettings.supportLightLayers && !preview;
             sanitizedFrameSettings.bitDatas[(int)FrameSettingsField.ExposureControl] &= !reflection && !preview;

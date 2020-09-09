@@ -258,17 +258,34 @@ namespace UnityEngine.Rendering.HighDefinition
 
             int   viewportWidth  = hdCamera.actualWidth;
             int   viewportHeight = hdCamera.actualHeight;
-            float screenFraction = controller.screenResolutionPercentage.value * 0.01f;
-            int   sliceCount     = controller.volumeSliceCount.value;
+
+            float screenFraction;
+            int   sliceCount;
+            if (controller.fogControlMode.value == FogControl.Balance)
+            {
+                // Evaluate the ssFraction and sliceCount based on the control parameters
+                float maxScreenSpaceFraction = (1.0f - controller.resolutionDepthRatio.value) * (Fog.maxFogScreenResolutionPercentage - Fog.minFogScreenResolutionPercentage) + Fog.minFogScreenResolutionPercentage;
+                screenFraction = Mathf.Lerp(Fog.minFogScreenResolutionPercentage, maxScreenSpaceFraction, controller.volumetricFogBudget.value) * 0.01f;
+                float maxSliceCount = Mathf.Max(1.0f, controller.resolutionDepthRatio.value * Fog.maxFogSliceCount);
+                sliceCount = (int)Mathf.Lerp(1.0f, maxSliceCount, controller.volumetricFogBudget.value);
+
+                // Evaluate the voxel size
+                voxelSize = 1.0f / screenFraction;
+            }
+            else
+            {
+                screenFraction = controller.screenResolutionPercentage.value * 0.01f;
+                sliceCount = controller.volumeSliceCount.value;
+
+                if (controller.screenResolutionPercentage.value == Fog.optimalFogScreenResolutionPercentage)
+                    voxelSize = 8;
+                else
+                    voxelSize = 1.0f / screenFraction; // Does not account for rounding (same function, above)
+            }
 
             int w = Mathf.RoundToInt(viewportWidth  * screenFraction);
             int h = Mathf.RoundToInt(viewportHeight * screenFraction);
             int d = sliceCount;
-
-            if (controller.screenResolutionPercentage.value == (1.0f/8.0f) * 100)
-                voxelSize = 8;
-            else
-                voxelSize = 1.0f / screenFraction; // Does not account for rounding (same function, above)
 
             return new Vector3Int(w, h, d);
         }
@@ -843,6 +860,7 @@ namespace UnityEngine.Rendering.HighDefinition
             public bool                         tiledLighting;
             public Vector4                      resolution;
             public bool                         enableReprojection;
+            public bool                         enableAnisotropy;
             public int                          viewCount;
             public bool                         filterVolume;
             public ShaderVariablesVolumetric    volumetricCB;
@@ -863,11 +881,13 @@ namespace UnityEngine.Rendering.HighDefinition
 
             // Only available in the Play Mode because all the frame counters in the Edit Mode are broken.
             parameters.tiledLighting = hdCamera.frameSettings.IsEnabled(FrameSettingsField.BigTilePrepass);
-            parameters.enableReprojection = hdCamera.IsVolumetricReprojectionEnabled();
+            bool volumeAllowsReprojection = ((int)fog.denoisingMode.value & (int)FogDenoisingMode.Reprojection) != 0;
+            parameters.enableReprojection = hdCamera.IsVolumetricReprojectionEnabled() && volumeAllowsReprojection;
             bool enableAnisotropy = fog.anisotropy.value != 0;
+            // The multi-pass integration is only possible if re-projection is possible and the effect is not in anisotropic mode.
             bool optimal = currParams.voxelSize == 8;
-
             parameters.volumetricLightingCS = m_VolumetricLightingCS;
+            parameters.volumetricLightingFilteringCS = m_VolumetricLightingFilteringCS;
             parameters.volumetricLightingCS.shaderKeywords = null;
 
             if(!parameters.tiledLighting)
@@ -894,10 +914,17 @@ namespace UnityEngine.Rendering.HighDefinition
                 parameters.volumetricLightingCS.DisableKeyword("VL_PRESET_OPTIMAL");
             }
 
+            if (!fog.directionalLightsOnly.value)
+            {
+                parameters.volumetricLightingCS.EnableKeyword("SUPPORT_LOCAL_LIGHTS");
+            }
+            else
+            {
+                parameters.volumetricLightingCS.DisableKeyword("SUPPORT_LOCAL_LIGHTS");
+            }
+
             parameters.volumetricLightingKernel = parameters.volumetricLightingCS.FindKernel("VolumetricLighting");
 
-
-            parameters.volumetricLightingFilteringCS = m_VolumetricLightingFilteringCS;
             parameters.volumetricFilteringKernelX = parameters.volumetricLightingFilteringCS.FindKernel("FilterVolumetricLightingX");
             parameters.volumetricFilteringKernelY = parameters.volumetricLightingFilteringCS.FindKernel("FilterVolumetricLightingY");
 
@@ -905,7 +932,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
             parameters.resolution = new Vector4(cvp.x, cvp.y, 1.0f / cvp.x, 1.0f / cvp.y);
             parameters.viewCount = hdCamera.viewCount;
-            parameters.filterVolume = fog.filter.value;
+            parameters.filterVolume = ((int)fog.denoisingMode.value & (int)FogDenoisingMode.Gaussian) != 0;
 
             UpdateShaderVariableslVolumetrics(ref m_ShaderVariablesVolumetricCB, hdCamera, parameters.resolution, frameIndex);
             parameters.volumetricCB = m_ShaderVariablesVolumetricCB;
@@ -947,7 +974,7 @@ namespace UnityEngine.Rendering.HighDefinition
         {
             using (new ProfilingScope(cmd, ProfilingSampler.Get(HDProfileId.VolumetricLightingFiltering)))
             {
-                ConstantBuffer.Push(cmd, parameters.volumetricCB, parameters.volumetricLightingCS, HDShaderIDs._ShaderVariablesVolumetric);
+                ConstantBuffer.Push(cmd, parameters.volumetricCB, parameters.volumetricLightingFilteringCS, HDShaderIDs._ShaderVariablesVolumetric);
 
                 // The shader defines GROUP_SIZE_1D = 8.
                 cmd.SetComputeTextureParam(parameters.volumetricLightingFilteringCS, parameters.volumetricFilteringKernelX, HDShaderIDs._VBufferFilteringInput,  inputBuffer);  // Read
