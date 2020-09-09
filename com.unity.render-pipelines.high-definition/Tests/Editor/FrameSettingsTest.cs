@@ -423,7 +423,6 @@ namespace UnityEngine.Rendering.HighDefinition.Tests
                 Assert.AreEqual(legacyFrameSettingsData.enableTransmission, frameSettingsData.IsEnabled(FrameSettingsField.Transmission));
                 Assert.AreEqual(legacyFrameSettingsData.enableAtmosphericScattering, frameSettingsData.IsEnabled(FrameSettingsField.AtmosphericScattering));
                 Assert.AreEqual(legacyFrameSettingsData.enableVolumetrics, frameSettingsData.IsEnabled(FrameSettingsField.Volumetrics));
-                Assert.AreEqual(legacyFrameSettingsData.enableReprojectionForVolumetrics, frameSettingsData.IsEnabled(FrameSettingsField.ReprojectionForVolumetrics));
                 Assert.AreEqual(legacyFrameSettingsData.enableLightLayers, frameSettingsData.IsEnabled(FrameSettingsField.LightLayers));
                 Assert.AreEqual(legacyFrameSettingsData.enableExposureControl, frameSettingsData.IsEnabled(FrameSettingsField.ExposureControl));
                 Assert.AreEqual(legacyFrameSettingsData.enableDepthPrepassWithDeferredRendering, frameSettingsData.IsEnabled(FrameSettingsField.DepthPrepassWithDeferredRendering));
@@ -462,7 +461,6 @@ namespace UnityEngine.Rendering.HighDefinition.Tests
                 Assert.AreEqual((legacyFrameSettingsData.overrides & LegacyFrameSettingsOverrides.Transmission) > 0, frameSettingsMask.mask[(uint)FrameSettingsField.Transmission]);
                 Assert.AreEqual((legacyFrameSettingsData.overrides & LegacyFrameSettingsOverrides.AtmosphericScaterring) > 0, frameSettingsMask.mask[(uint)FrameSettingsField.AtmosphericScattering]);
                 Assert.AreEqual((legacyFrameSettingsData.overrides & LegacyFrameSettingsOverrides.Volumetrics) > 0, frameSettingsMask.mask[(uint)FrameSettingsField.Volumetrics]);
-                Assert.AreEqual((legacyFrameSettingsData.overrides & LegacyFrameSettingsOverrides.ReprojectionForVolumetrics) > 0, frameSettingsMask.mask[(uint)FrameSettingsField.ReprojectionForVolumetrics]);
                 Assert.AreEqual((legacyFrameSettingsData.overrides & LegacyFrameSettingsOverrides.LightLayers) > 0, frameSettingsMask.mask[(uint)FrameSettingsField.LightLayers]);
                 Assert.AreEqual((legacyFrameSettingsData.overrides & LegacyFrameSettingsOverrides.ExposureControl) > 0, frameSettingsMask.mask[(uint)FrameSettingsField.ExposureControl]);
                 Assert.AreEqual((legacyFrameSettingsData.overrides & LegacyFrameSettingsOverrides.DepthPrepassWithDeferredRendering) > 0, frameSettingsMask.mask[(uint)FrameSettingsField.DepthPrepassWithDeferredRendering]);
