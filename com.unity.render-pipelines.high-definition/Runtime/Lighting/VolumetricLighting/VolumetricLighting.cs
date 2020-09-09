@@ -860,7 +860,6 @@ namespace UnityEngine.Rendering.HighDefinition
             public bool                         tiledLighting;
             public Vector4                      resolution;
             public bool                         enableReprojection;
-            public bool                         enableAnisotropy;
             public int                          viewCount;
             public bool                         filterVolume;
             public ShaderVariablesVolumetric    volumetricCB;
